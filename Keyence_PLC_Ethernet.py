@@ -200,10 +200,12 @@ class Keyence_PLC_Ethernet:
         for i in range(0,3,1):
             try:
                 # data_list = amount+' '+value1+' '+value2+' '+value3
-                data_list=' '
-    
-                for data in x:
-                    data_list = data_list + data
+                b = len(data_list)
+                c = str(b)
+                data_list.insert(0,c)
+                
+                space = ' '
+                data_list = space.join(data_list)
                 
                 WRITES = "WRS"+"20".decode("hex")+register_type+start_register_id+data_format+"20".decode("hex")+data_list+"0D".decode("hex")
                 self.server.sendall(WRITES)
@@ -230,47 +232,14 @@ class Keyence_PLC_Ethernet:
 
 if __name__ =='__main__':
     plc = Keyence_PLC_Ethernet('192.168.4.101',8501)
-    input_msg = raw_input()
-    plc.force_set('R','001')
-    
-    x = ['3',' ','9',' ','02',' ','68']
-    plc.consecutive_write_data('CM','7002','.U',x)
+    # input_msg = raw_input()
+    plc.force_set('MR','4')
+
+    a = ['99','88','77']
+
+    plc.consecutive_write_data('CM','7002','.U',a)
     # plc.continous_force_reset('R','506','3')
 
-    
-    comment =  '''
-    register_type = str
-    register_id = str
-    start_register_id = str
-    number = str
-    data_format = str
-    data = str
-    data_list = str
-    
-
-    while True:
-        print('Which command do you want to use: ')
-        input_msg = raw_input()
-        if input_msg == "SET" or input_msg == "set" :
-            plc.force_set(register_type,register_id)
-        elif input_msg == "RESET" or input_msg == "reset" :
-            plc.force_reset(register_type,register_id)
-        elif input_msg == "SETS" or input_msg == "sets" :
-            plc.continous_force_set(register_type,start_register_id,number) 
-        elif input_msg == "RESETS" or input_msg == "resets" :
-            plc.continous_force_reset(register_type,start_register_id,number)
-        elif input_msg == "READ" or input_msg == "read" :
-            plc.data_read(register_type,register_id)
-        elif input_msg == "READS" or input_msg == "reads" :
-            plc.consecutive_data_read(register_type,start_register_id,number)
-        elif input_msg == "WRITE" or input_msg == "write" :
-            plc.write_data(register_type,register_id,data_format,data)
-        elif input_msg == "WRITES" or input_msg == "writes" :
-            plc.consecutive_write_data(register_type,start_register_id,data_format,data_list)
-        else :  
-            print "Enter command error! try again!"
-
-        '''
         
 
         
