@@ -35,7 +35,7 @@ class Keyence_PLC_Ethernet:
             return True
         else:
             print 'register_type format error'
-            print 'register_type should be  R or B or MR or LR or CR or T or C or CTC or VB !!!\r\n' 
+            print 'register_type should be  R or B or MR or LR or CR or T or C or CTC or VB !!!' 
             return False
 
     def check_id(self,register_id):
@@ -43,7 +43,7 @@ class Keyence_PLC_Ethernet:
             return True
         else:
             print 'register_id format error'
-            print 'register_id should be Positive Integer !!!\r\n' 
+            print 'register_id should be Positive Integer !!!' 
             return False
 
     def check_format(self,data_format):
@@ -52,7 +52,7 @@ class Keyence_PLC_Ethernet:
             return True
         else:
             print 'data_format error'
-            print 'data_format should be none or .U or .S or .D or .L or .H !!!\r\n' 
+            print 'data_format should be none or .U or .S or .D or .L or .H !!!' 
             return False
 
     def force_set(self,register_type,register_id):
@@ -66,14 +66,16 @@ class Keyence_PLC_Ethernet:
                     Rx = self.server.recv(1024)
                     self.rec_msg = Rx 
                     if Rx == "OK\r\n" :
-                        print "set successed"
+                        print register_type + register_id + " force_set successed\r\n"
                         return True
                         # start = True
                     elif Rx == "E1\r\n":
                         print "Command error"
+                        print register_type + register_id + ' force_set failed\r\n'
                         return False
                     elif Rx == "E0\r\n":
                         print "Register number error"
+                        print register_type + register_id + ' force_set failed\r\n'
                         return False
                 except socket.error as e:            
                     print("Error -->"+str(e))
@@ -81,6 +83,7 @@ class Keyence_PLC_Ethernet:
                     self.server.sendall(SET)
 
         else:
+            print 'force_set failed\r\n'
             return False
 
            
@@ -96,11 +99,13 @@ class Keyence_PLC_Ethernet:
                     self.rec_msg = Rx 
 
                     if Rx == "OK\r\n" :
-                        print "force_reset OK"
+                        print register_type + register_id + " force_reset successed\r\n"
                     elif Rx == "E1\r\n":
                         print "Command error"
+                        print register_type + register_id + ' force_reset failed\r\n'
                     elif Rx == "E0\r\n":
                         print "Register number error"
+                        print register_type + register_id + ' force_reset failed\r\n'
                     return
 
                 except socket.error as e:
@@ -109,6 +114,7 @@ class Keyence_PLC_Ethernet:
                     self.server.sendall(RESET)
 
         else:
+            print 'force_reset failed\r\n'
             return False
 
 
@@ -124,11 +130,13 @@ class Keyence_PLC_Ethernet:
                     self.rec_msg = Rx 
 
                     if Rx == "OK\r\n" :
-                        print "continous_force_set OK"
+                        print "continous_force_set successed\r\n"
                     elif Rx == "E1\r\n":
                         print "Command error"
+                        print 'continous_force_set failed\r\n'
                     elif Rx == "E0\r\n":
                         print "Register number error"
+                        print 'continous_force_set failed\r\n'
                     return
 
                 except socket.error as e:           
@@ -137,6 +145,7 @@ class Keyence_PLC_Ethernet:
                     self.server.sendall(SETS)
 
         else:
+            print 'continous_force_set failed\r\n'
             return False
 
     def continous_force_reset(self,register_type,start_register_id,number):
@@ -151,11 +160,13 @@ class Keyence_PLC_Ethernet:
                     self.rec_msg = Rx 
 
                     if Rx == "OK\r\n" :
-                        print "continous_force_reset OK"
+                        print "continous_force_reset successed\r\n"
                     elif Rx == "E1\r\n":
                         print "Command error"
+                        print  'continous_force_reset failed\r\n'
                     elif Rx == "E0\r\n":
                         print "Register number error"
+                        print 'continous_force_reset failed\r\n'
                     return
 
                 except socket.error as e:
@@ -164,6 +175,7 @@ class Keyence_PLC_Ethernet:
                     self.server.sendall(RESETS)
 
         else:
+            print 'continous_force_reset failed\r\n'
             return False
 
     def data_read(self,register_type,register_id,data_format=''):
@@ -177,12 +189,14 @@ class Keyence_PLC_Ethernet:
                     Rx = self.server.recv(1024)
                     self.rec_msg = Rx
                     print 'The register format is : ' + data_format
-                    print 'The register value is : ' + Rx 
+                    print register_type + register_id + ' The register value is : ' + Rx 
                     
                     if Rx == "E1\r\n":
                         print "Command error"
+                        print register_type + register_id + ' data_read failed\r\n'
                     elif Rx == "E0\r\n":
                         print "Register number error"
+                        print register_type + register_id + ' data_read failed\r\n'
                     return
 
                 except socket.error as e:
@@ -190,6 +204,7 @@ class Keyence_PLC_Ethernet:
                     # plc.force_set(register_type,register_id) 危險
                     self.server.sendall(READ)
         else:
+            print 'data_read failed\r\n'
             return False
         # 繼電器*2 R（可省略） 00000~199915*4 （位） 0001~1000 0001~0500
         # 鏈路繼電器B 0000~7FFF （位） 0001~1000 0001~0500
@@ -200,7 +215,7 @@ class Keyence_PLC_Ethernet:
         # 資料記憶體*2 DM 00000~65534 .U 0001~1000 0001~0500
 
 
-    def consecutive_data_read(self , register_type , start_register_id , data_format , number):
+    def consecutive_data_read(self , register_type , start_register_id , data_format = '', number=1):
         if self.check_type(register_type) and self.check_id(start_register_id) and self.check_format(data_format):
             for i in range(0,3,1):
                 try:
@@ -216,8 +231,10 @@ class Keyence_PLC_Ethernet:
 
                     if Rx == "E1\r\n":
                         print "Command error"
+                        print 'consecutive_data_read failed\r\n'
                     elif Rx == "E0\r\n":
                         print "Register number error"
+                        print 'consecutive_data_read failed\r\n'
                     return
 
                 except socket.error as e:
@@ -225,6 +242,7 @@ class Keyence_PLC_Ethernet:
                     # plc.force_set(register_type,register_id) 危險
                     self.server.sendall(READS)
         else:
+            print 'consecutive_data_read failed\r\n'
             return False
         # data_format 
         # .U : Decimal, 16bit, unsigned 
@@ -248,11 +266,13 @@ class Keyence_PLC_Ethernet:
                     print data
 
                     if Rx == "OK\r\n" :
-                        print "write_data OK"
+                        print register_type + register_id + " write_data successed\r\n"
                     elif Rx == "E1\r\n":
                         print "Command error"
+                        print register_type + register_id + ' write_data failed\r\n'
                     elif Rx == "E0\r\n":
                         print "Register number error"
+                        print register_type + register_id + ' write_data failed\r\n'
                     return
 
                 except socket.error as e:
@@ -260,6 +280,7 @@ class Keyence_PLC_Ethernet:
                     # plc.force_set(register_type,register_id) 危險
                     self.server.sendall(WRITE)
         else:
+            print 'write_data failed\r\n'
             return False
 
     def consecutive_write_data(self,register_type,start_register_id,data_format,data_list):
@@ -286,11 +307,13 @@ class Keyence_PLC_Ethernet:
                     self.rec_msg = Rx
 
                     if Rx == "OK\r\n" :
-                        print "write_data OK"
+                        print "consecutive_write_data successed\r\n"
                     elif Rx == "E1\r\n":
                         print "Command error"
+                        print 'consecutive_write_data failed\r\n'
                     elif Rx == "E0\r\n":
                         print "Register number error"
+                        print 'consecutive_write_data failed\r\n'
                     return
 
                 except socket.error as e:
@@ -299,6 +322,7 @@ class Keyence_PLC_Ethernet:
                     self.server.sendall(WRITES)
 
         else:
+            print 'consecutive_write_data failed\r\n'
             return False
 
 
@@ -306,23 +330,25 @@ class Keyence_PLC_Ethernet:
 if __name__ =='__main__':
     plc = Keyence_PLC_Ethernet('192.168.4.101',8501)
     # input_msg = raw_input()
-    # plc.force_reset('MR',4)
+    # plc.force_set('MR',4)
     
     # plc.data_read('DM',1,'.S')
-    # plc.data_read('DM',2,'.X')
+    # plc.data_read('DM',2,'.L')
     # plc.data_read('DM',4,'.S')
     # plc.data_read('CM',7100,'.L')
+    # plc.data_read('R',500)
     # plc.data_read('R',515)
-    # plc.consecutive_data_read('R',506,'',3)
+    # plc.consecutive_data_read('R',506)
     
     # plc.write_data('CM',7100,'.L',-123)
+    # plc.write_data('R',500,'',0)
     
-    a = [1,2,35,-4,6]
-    b = [52784616,27365317]
+    # a = [1,2,35,-4,6]
+    # b = [52784616,27365317]
 
-    plc.consecutive_write_data('DM',10,'.D',b)
+    # plc.consecutive_write_data('DM',10,'.D',b)
     # plc.continous_force_reset('R',506,3)
-    # plc.consecutive_data_read('R',506,3)
+    # plc.consecutive_data_read('R',506,"",3)
 
         
 
